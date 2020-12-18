@@ -4,8 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart'as http;
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-
+import 'package:netflix_clone/screens/SignUp.dart';
+import 'package:netflix_clone/screens/SignIn.dart';
 
 class onBoardingScreen extends StatefulWidget {
   @override
