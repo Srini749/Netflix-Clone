@@ -505,7 +505,77 @@ class _MoreDetailsState extends State<MoreDetails> {
               ),
             ),
           ),
-
+          episode ?
+          SliverToBoxAdapter(
+            child: widget.movie? Container(): Container(
+              child: Column(
+                children: [
+                  Column(
+                    children: widget.details["seasons"].map<Widget>((item) {
+                      return item["overview"].isEmpty? Container() : Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text("Season: ${item["season_number"]}",style: TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),textAlign: TextAlign.start, ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(item["overview"],style: TextStyle(color: Colors.white, fontSize: 15, ),),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: 100),
+                ],
+              ),
+            ),
+          ) : SliverGrid(
+              delegate: SliverChildBuilderDelegate(
+                (BuildContext context, int index) {
+                  return GestureDetector(
+                    onTap: () async {
+                      setState(() {
+                        isloading = true;
+                      });
+                      var details =
+                          widget.details["similar"][index]["type"] == "movie"
+                              ? await gettingmoviedetails(
+                                  widget.details["similar"][index]["id"])
+                              : await gettingtvdetails(
+                                  widget.details["similar"][index]["id"]);
+                      setState(() {
+                        isloading = false;
+                      });
+                      print(details);
+                      Navigator.push(
+                          scaffoldKey.currentContext,
+                          MaterialPageRoute(
+                              builder: (context) => MoreDetails(
+                                    details: details,
+                                    movie: movie,
+                                    user: widget.user,
+                                snapshot: widget.snapshot,
+                                  )));
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(5),
+                      height: 150,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Image.network(
+                        "https://image.tmdb.org/t/p/original${widget.details["similar"][index]["poster_path"]}",
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  );
+                },
+                childCount: widget.details["similar"].length,
+              ),
+              gridDelegate:
+                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3)),
         ],
       ),
     );
