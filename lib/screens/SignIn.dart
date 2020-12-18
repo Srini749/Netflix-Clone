@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_app/screens/HomePage.dart';
+import 'package:netflix_clone/screens/HomePage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_app/screens/OnBoardingScreen.dart';
-import 'package:flutter_app/screens/SignUp.dart';
+import 'package:netflix_clone/screens/SignUp.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignInPage extends StatefulWidget {
