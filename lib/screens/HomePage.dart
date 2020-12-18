@@ -149,7 +149,8 @@ class _HomePageState extends State<HomePage> {
         ? Container(
       child: Center(child: CircularProgressIndicator()),
     )
-        :  CustomScrollView(
+        : mylist
+        ? CustomScrollView(
       slivers: [
         SliverAppBar(
           backgroundColor: Colors.transparent,
@@ -162,7 +163,12 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.only(right: 8.0),
               child: FlatButton(
                 onPressed: () {
-
+                  setState(() {
+                    isloading = true;
+                    mylist = false;
+                    data = widget.tvlist;
+                    isloading = false;
+                  });
                 },
                 child: Text(
                   "TV Shows",
@@ -178,6 +184,183 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.only(right: 8.0),
               child: FlatButton(
                 onPressed: () {
+                  setState(() {
+                    isloading = true;
+                    mylist = false;
+                    data = widget.movielist;
+                    isloading = false;
+                  });
+                },
+                child: Text(
+                  "Movies",
+                  style: TextStyle(
+                      color: data == widget.movielist
+                          ? Colors.red
+                          : Colors.white,
+                      fontSize: 18),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: FlatButton(
+                onPressed: () {
+                  setState(() {
+                    isloading = true;
+                    data == totaldata;
+                    mylist = true;
+                    isloading = false;
+                  });
+                },
+                child: Text(
+                  "My List",
+                  style: TextStyle(
+                      color: mylist ? Colors.red : Colors.white,
+                      fontSize: 18),
+                ),
+              ),
+            )
+          ],
+        ),
+        widget.snapshot.docs[0]["mylist"].length != 0
+            ? SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                return GestureDetector(
+                  onTap: () async {
+                    setState(() {
+                      isloading = true;
+                    });
+                    var details = await gettingmoviedetails(
+                        widget.snapshot.docs[0].data()["mylist"]
+                        [index]["id"]);
+                    setState(() {
+                      isloading = false;
+                    });
+                    print(details);
+                    Navigator.push(
+                        scaffoldKey.currentContext,
+                        MaterialPageRoute(
+                            builder: (context) => MoreDetails(
+
+                            )));
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(5),
+                    height: 150,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Image.network(
+                      "https://image.tmdb.org/t/p/original${widget.snapshot.docs[0].data()["mylist"][index]["poster_path"]}",
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                );
+              },
+              childCount:
+              widget.snapshot.docs[0].data()["mylist"].length,
+            ),
+            gridDelegate:
+            SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2))
+            : SliverToBoxAdapter(
+          child: Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: 50,
+                ),
+                Image.asset(
+                  "assets/icons/tick.png",
+                  scale: 2,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                      top: 40.0, right: 20, left: 20),
+                  child: Text(
+                    "Add movies & TV shows to your list so you can easily find them later.",
+                    style: TextStyle(
+                        color: Colors.grey, fontSize: 25),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                      vertical: 50, horizontal: 30),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        data = totaldata;
+                        mylist = false;
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius:
+                          BorderRadius.circular(5),
+                          color: Colors.white),
+                      padding: EdgeInsets.symmetric(
+                          vertical: 20, horizontal: 10),
+                      child: Center(
+                          child: Text(
+                            "FIND SOMETHING TO WATCH",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          )),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ],
+    )
+        : CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          backgroundColor: Colors.transparent,
+          leading: Image.asset(
+            "assets/n_symbol.png",
+            scale: 20,
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: FlatButton(
+                onPressed: () {
+                  setState(() {
+                    isloading = true;
+                    data = widget.tvlist;
+                    mylist = false;
+                    isloading = false;
+                  });
+                },
+                child: Text(
+                  "TV Shows",
+                  style: TextStyle(
+                      color: data == widget.tvlist
+                          ? Colors.red
+                          : Colors.white,
+                      fontSize: 18),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: FlatButton(
+                onPressed: () {
+                  setState(() {
+                    isloading = true;
+                    data = widget.movielist;
+                    mylist = false;
+                    isloading = false;
+                  });
 
                 },
                 child: Text(
@@ -221,11 +404,31 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         SliverToBoxAdapter(
-          child: Container(
-            height: 300,
-            child: Image.network(
-              "https://image.tmdb.org/t/p/original${data[0]["poster_path"]}",
-              fit: BoxFit.contain,
+          child: GestureDetector(
+            onTap: () async {
+              setState(() {
+                isloading = true;
+              });
+              var details = data[0]["type"] == "movie"
+                  ? await gettingmoviedetails(data[0]["id"])
+                  : await gettingtvdetails(data[0]["id"]);
+              setState(() {
+                isloading = false;
+              });
+              print(details);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MoreDetails(
+
+                      )));
+            },
+            child: Container(
+              height: 300,
+              child: Image.network(
+                "https://image.tmdb.org/t/p/original${data[0]["poster_path"]}",
+                fit: BoxFit.contain,
+              ),
             ),
           ),
         ),
@@ -331,22 +534,41 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.black, fontSize: 18),
                     )),
               ),
-              Column(
-                children: [
-                  Image.asset(
-                    "assets/icons/info.jpg",
-                    scale: 13,
-                    color: Colors.white,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      "Info",
-                      style: TextStyle(
-                          color: Colors.white, fontSize: 18.0),
+              FlatButton(
+                onPressed: () async {
+                  setState(() {
+                    isloading = true;
+                  });
+                  var details = data[0]["type"] == "movie"
+                      ? await gettingmoviedetails(data[0]["id"])
+                      : await gettingtvdetails(data[0]["id"]);
+                  setState(() {
+                    isloading = false;
+                  });
+                  print(details);
+                  Navigator.push(
+                      scaffoldKey.currentContext,
+                      MaterialPageRoute(
+                          builder: (context) => MoreDetails(
+                              )));
+                },
+                child: Column(
+                  children: [
+                    Image.asset(
+                      "assets/icons/info.jpg",
+                      scale: 13,
+                      color: Colors.white,
                     ),
-                  )
-                ],
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        "Info",
+                        style: TextStyle(
+                            color: Colors.white, fontSize: 18.0),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ],
           ),
@@ -374,14 +596,34 @@ class _HomePageState extends State<HomePage> {
                 scrollDirection: Axis.horizontal,
                 itemCount: data.length,
                 itemBuilder: (context, index) {
-                  return Container(
-                    padding: EdgeInsets.all(5),
-                    height: 150,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Image.network(
-                      "https://image.tmdb.org/t/p/original${data[index]["poster_path"]}",
-                      fit: BoxFit.contain,
+                  return GestureDetector(
+                    onTap: () async {
+                      setState(() {
+                        isloading = true;
+                      });
+                      var details = data[index]["type"] == "movie"
+                          ? await gettingmoviedetails(
+                          data[index]["id"])
+                          : await gettingtvdetails(data[index]["id"]);
+                      setState(() {
+                        isloading = false;
+                      });
+                      print(details);
+                      Navigator.push(
+                          scaffoldKey.currentContext,
+                          MaterialPageRoute(
+                              builder: (context) => MoreDetails(
+                                 )));
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(5),
+                      height: 150,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Image.network(
+                        "https://image.tmdb.org/t/p/original${data[index]["poster_path"]}",
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   );
                 },
@@ -414,17 +656,39 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) {
                   return data[index]["genre_ids"].contains(28) ||
                       totaldata[index]["genre_ids"].contains(12)
-                      ? Container(
-                        padding: EdgeInsets.all(5),
-                        height: 150,
-                        decoration: BoxDecoration(
-                            borderRadius:
-                            BorderRadius.circular(10)),
-                        child: Image.network(
-                          "https://image.tmdb.org/t/p/original${data[index]["poster_path"]}",
-                          fit: BoxFit.contain,
-                        ),
-                      )
+                      ? GestureDetector(
+                    onTap: () async {
+                      setState(() {
+                        isloading = true;
+                      });
+                      var details =
+                      data[index]["type"] == "movie"
+                          ? await gettingmoviedetails(
+                          data[index]["id"])
+                          : await gettingtvdetails(
+                          data[index]["id"]);
+                      setState(() {
+                        isloading = false;
+                      });
+                      print(details);
+                      Navigator.push(
+                          scaffoldKey.currentContext,
+                          MaterialPageRoute(
+                              builder: (context) => MoreDetails(
+                                  )));
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(5),
+                      height: 150,
+                      decoration: BoxDecoration(
+                          borderRadius:
+                          BorderRadius.circular(10)),
+                      child: Image.network(
+                        "https://image.tmdb.org/t/p/original${data[index]["poster_path"]}",
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  )
                       : Container();
                 },
               ),
@@ -455,17 +719,39 @@ class _HomePageState extends State<HomePage> {
                 itemCount: data.length,
                 itemBuilder: (context, index) {
                   return data[index]["genre_ids"].contains(35)
-                      ? Container(
-                        padding: EdgeInsets.all(5),
-                        height: 150,
-                        decoration: BoxDecoration(
-                            borderRadius:
-                            BorderRadius.circular(10)),
-                        child: Image.network(
-                          "https://image.tmdb.org/t/p/original${data[index]["poster_path"]}",
-                          fit: BoxFit.contain,
-                        ),
-                      )
+                      ? GestureDetector(
+                    onTap: () async {
+                      setState(() {
+                        isloading = true;
+                      });
+                      var details =
+                      data[index]["type"] == "movie"
+                          ? await gettingmoviedetails(
+                          data[index]["id"])
+                          : await gettingtvdetails(
+                          data[index]["id"]);
+                      setState(() {
+                        isloading = false;
+                      });
+                      print(details);
+                      Navigator.push(
+                          scaffoldKey.currentContext,
+                          MaterialPageRoute(
+                              builder: (context) => MoreDetails(
+                                  )));
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(5),
+                      height: 150,
+                      decoration: BoxDecoration(
+                          borderRadius:
+                          BorderRadius.circular(10)),
+                      child: Image.network(
+                        "https://image.tmdb.org/t/p/original${data[index]["poster_path"]}",
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  )
                       : Container();
                 },
               ),
@@ -497,17 +783,39 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) {
                   return data[index]["genre_ids"].contains(27) ||
                       data[index]["genre_ids"].contains(9648)
-                      ? Container(
-                        padding: EdgeInsets.all(5),
-                        height: 150,
-                        decoration: BoxDecoration(
-                            borderRadius:
-                            BorderRadius.circular(10)),
-                        child: Image.network(
-                          "https://image.tmdb.org/t/p/original${data[index]["poster_path"]}",
-                          fit: BoxFit.contain,
-                        ),
-                      )
+                      ? GestureDetector(
+                    onTap: () async {
+                      setState(() {
+                        isloading = true;
+                      });
+                      var details =
+                      data[index]["type"] == "movie"
+                          ? await gettingmoviedetails(
+                          data[index]["id"])
+                          : await gettingtvdetails(
+                          data[index]["id"]);
+                      setState(() {
+                        isloading = false;
+                      });
+                      print(details);
+                      Navigator.push(
+                          scaffoldKey.currentContext,
+                          MaterialPageRoute(
+                              builder: (context) => MoreDetails(
+                                  )));
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(5),
+                      height: 150,
+                      decoration: BoxDecoration(
+                          borderRadius:
+                          BorderRadius.circular(10)),
+                      child: Image.network(
+                        "https://image.tmdb.org/t/p/original${data[index]["poster_path"]}",
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  )
                       : Container();
                 },
               ),
@@ -539,17 +847,42 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) {
                   return data[index]["genre_ids"].contains(80) ||
                       data[index]["genre_ids"].contains(18)
-                      ? Container(
-                        padding: EdgeInsets.all(5),
-                        height: 150,
-                        decoration: BoxDecoration(
-                            borderRadius:
-                            BorderRadius.circular(10)),
-                        child: Image.network(
-                          "https://image.tmdb.org/t/p/original${data[index]["poster_path"]}",
-                          fit: BoxFit.contain,
-                        ),
-                      )
+                      ? GestureDetector(
+                    onTap: () async {
+                      setState(() {
+                        isloading = true;
+                      });
+                      var details =
+                      data[index]["type"] == "movie"
+                          ? await gettingmoviedetails(
+                          data[index]["id"])
+                          : await gettingtvdetails(
+                          data[index]["id"]);
+                      setState(() {
+                        isloading = false;
+                      });
+                      print(details);
+                      Navigator.push(
+                          scaffoldKey.currentContext,
+                          MaterialPageRoute(
+                              builder: (context) => MoreDetails(
+                                  details: details,
+                                  movie: movie,
+                                  user: widget.user,
+                                  snapshot: widget.snapshot)));
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(5),
+                      height: 150,
+                      decoration: BoxDecoration(
+                          borderRadius:
+                          BorderRadius.circular(10)),
+                      child: Image.network(
+                        "https://image.tmdb.org/t/p/original${data[index]["poster_path"]}",
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  )
                       : Container();
                 },
               ),
@@ -584,15 +917,33 @@ class _HomePageState extends State<HomePage> {
                 scrollDirection: Axis.horizontal,
                 itemCount: widget.upcomingmovies.length,
                 itemBuilder: (context, index) {
-                  return Container(
-                    padding: EdgeInsets.all(5),
-                    height: 150,
-                    decoration: BoxDecoration(
-                        borderRadius:
-                        BorderRadius.circular(10)),
-                    child: Image.network(
-                      "https://image.tmdb.org/t/p/original${widget.upcomingmovies[index]["poster_path"]}",
-                      fit: BoxFit.contain,
+                  return GestureDetector(
+                    onTap: () async {
+                      setState(() {
+                        isloading = true;
+                      });
+                      var details = await gettingmoviedetails(
+                          widget.upcomingmovies[index]["id"]);
+                      setState(() {
+                        isloading = false;
+                      });
+                      print(details);
+                      Navigator.push(
+                          scaffoldKey.currentContext,
+                          MaterialPageRoute(
+                              builder: (context) => MoreDetails(
+                                  )));
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(5),
+                      height: 150,
+                      decoration: BoxDecoration(
+                          borderRadius:
+                          BorderRadius.circular(10)),
+                      child: Image.network(
+                        "https://image.tmdb.org/t/p/original${widget.upcomingmovies[index]["poster_path"]}",
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   );
                 },
