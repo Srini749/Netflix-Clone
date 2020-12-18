@@ -145,7 +145,466 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget homescreen() {
-    return Container();
+    return isloading
+        ? Container(
+      child: Center(child: CircularProgressIndicator()),
+    )
+        :  CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          backgroundColor: Colors.transparent,
+          leading: Image.asset(
+            "assets/n_symbol.png",
+            scale: 20,
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: FlatButton(
+                onPressed: () {
+
+                },
+                child: Text(
+                  "TV Shows",
+                  style: TextStyle(
+                      color: data == widget.tvlist
+                          ? Colors.red
+                          : Colors.white,
+                      fontSize: 18),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: FlatButton(
+                onPressed: () {
+
+                },
+                child: Text(
+                  "Movies",
+                  style: TextStyle(
+                      color: data == widget.movielist
+                          ? Colors.red
+                          : Colors.white,
+                      fontSize: 18),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: FlatButton(
+                onPressed: () async {
+                  setState(() {
+                    isloading = true;
+                    data = totaldata;
+                  });
+                  QuerySnapshot snapshot =
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .where(
+                    "email",
+                    isEqualTo: widget.user.email,
+                  )
+                      .get();
+                  setState(() {
+                    widget.snapshot = snapshot;
+                    isloading = false;
+                    mylist = true;
+                  });
+                },
+                child: Text(
+                  "My List",
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+              ),
+            )
+          ],
+        ),
+        SliverToBoxAdapter(
+          child: Container(
+            height: 300,
+            child: Image.network(
+              "https://image.tmdb.org/t/p/original${data[0]["poster_path"]}",
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+            child: data[0]["genre_ids"].length == 0
+                ? Container()
+                : Container(
+              height: 30,
+              alignment: Alignment.center,
+              width: MediaQuery.of(context).size.width,
+              child: ListView.builder(
+                  shrinkWrap: true,
+                  scrollDirection: Axis.horizontal,
+                  itemCount: data[0]["genre_ids"].length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      alignment: Alignment.center,
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 10,
+                            width: 10,
+                            margin: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                                color: Colors.orange,
+                                borderRadius: BorderRadius.all(
+                                    Radius.circular(20))),
+                          ),
+                          Container(
+                            padding: EdgeInsets.only(left: 5),
+                            child: Text(
+                              genres[data[0]["genre_ids"]
+                              [index]],
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15),
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  }),
+            )),
+        SliverToBoxAdapter(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              FlatButton(
+                onPressed: () async {
+                  var details = data[0]["type"] == "movie"
+                      ? await gettingmoviedetails(data[0]["id"])
+                      : await gettingtvdetails(data[0]["id"]);
+                  List mylist;
+                  setState(() {
+                    mylist = widget.snapshot.docs[0].data()["mylist"];
+
+                    mylist.add(details);
+                  });
+                  print(mylist);
+                  Map<String, dynamic> userMap = {
+                    "email": widget.user.email,
+                    "username":
+                    widget.snapshot.docs[0].data()["username"],
+                    "mylist": mylist
+                  };
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(widget.snapshot.docs[0].id)
+                      .update(userMap);
+                  setState(() {
+                    added = true;
+                  });
+                },
+                child: Column(
+                  children: [
+                    Icon(added ? Icons.check : Icons.add,
+                        color: Colors.white, size: 30),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        added ? "Added" : "My List",
+                        style: TextStyle(
+                            color: Colors.white, fontSize: 18.0),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5)),
+                child: FlatButton.icon(
+                    onPressed: null,
+                    icon: Icon(
+                      Icons.play_arrow,
+                      size: 40,
+                      color: Colors.black,
+                    ),
+                    label: Text(
+                      "Play",
+                      style: TextStyle(
+                          color: Colors.black, fontSize: 18),
+                    )),
+              ),
+              Column(
+                children: [
+                  Image.asset(
+                    "assets/icons/info.jpg",
+                    scale: 13,
+                    color: Colors.white,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      "Info",
+                      style: TextStyle(
+                          color: Colors.white, fontSize: 18.0),
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Container(
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.only(left: 10, top: 20),
+            child: Text(
+              'Popular on Netflix',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold),
+              textAlign: TextAlign.start,
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 200,
+            child: Padding(
+              padding: EdgeInsets.all(5),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: data.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    padding: EdgeInsets.all(5),
+                    height: 150,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Image.network(
+                      "https://image.tmdb.org/t/p/original${data[index]["poster_path"]}",
+                      fit: BoxFit.contain,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Container(
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.only(left: 10, top: 20),
+            child: Text(
+              'Action & Adventure',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold),
+              textAlign: TextAlign.start,
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 200,
+            child: Padding(
+              padding: EdgeInsets.all(5),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: data.length,
+                itemBuilder: (context, index) {
+                  return data[index]["genre_ids"].contains(28) ||
+                      totaldata[index]["genre_ids"].contains(12)
+                      ? Container(
+                        padding: EdgeInsets.all(5),
+                        height: 150,
+                        decoration: BoxDecoration(
+                            borderRadius:
+                            BorderRadius.circular(10)),
+                        child: Image.network(
+                          "https://image.tmdb.org/t/p/original${data[index]["poster_path"]}",
+                          fit: BoxFit.contain,
+                        ),
+                      )
+                      : Container();
+                },
+              ),
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Container(
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.only(left: 10, top: 20),
+            child: Text(
+              'Comedies',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold),
+              textAlign: TextAlign.start,
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 200,
+            child: Padding(
+              padding: EdgeInsets.all(5),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: data.length,
+                itemBuilder: (context, index) {
+                  return data[index]["genre_ids"].contains(35)
+                      ? Container(
+                        padding: EdgeInsets.all(5),
+                        height: 150,
+                        decoration: BoxDecoration(
+                            borderRadius:
+                            BorderRadius.circular(10)),
+                        child: Image.network(
+                          "https://image.tmdb.org/t/p/original${data[index]["poster_path"]}",
+                          fit: BoxFit.contain,
+                        ),
+                      )
+                      : Container();
+                },
+              ),
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Container(
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.only(left: 10, top: 20),
+            child: Text(
+              'Mystery & Horror',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold),
+              textAlign: TextAlign.start,
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 200,
+            child: Padding(
+              padding: EdgeInsets.all(5),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: data.length,
+                itemBuilder: (context, index) {
+                  return data[index]["genre_ids"].contains(27) ||
+                      data[index]["genre_ids"].contains(9648)
+                      ? Container(
+                        padding: EdgeInsets.all(5),
+                        height: 150,
+                        decoration: BoxDecoration(
+                            borderRadius:
+                            BorderRadius.circular(10)),
+                        child: Image.network(
+                          "https://image.tmdb.org/t/p/original${data[index]["poster_path"]}",
+                          fit: BoxFit.contain,
+                        ),
+                      )
+                      : Container();
+                },
+              ),
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Container(
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.only(left: 10, top: 20),
+            child: Text(
+              'Crime & Thriller',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold),
+              textAlign: TextAlign.start,
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 200,
+            child: Padding(
+              padding: EdgeInsets.all(5),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: data.length,
+                itemBuilder: (context, index) {
+                  return data[index]["genre_ids"].contains(80) ||
+                      data[index]["genre_ids"].contains(18)
+                      ? Container(
+                        padding: EdgeInsets.all(5),
+                        height: 150,
+                        decoration: BoxDecoration(
+                            borderRadius:
+                            BorderRadius.circular(10)),
+                        child: Image.network(
+                          "https://image.tmdb.org/t/p/original${data[index]["poster_path"]}",
+                          fit: BoxFit.contain,
+                        ),
+                      )
+                      : Container();
+                },
+              ),
+            ),
+          ),
+        ),
+        data == widget.movielist || data == totaldata
+            ? SliverToBoxAdapter(
+          child: Container(
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.only(left: 10, top: 20),
+            child: Text(
+              'Upcoming Movies',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold),
+              textAlign: TextAlign.start,
+            ),
+          ),
+        )
+            : SliverToBoxAdapter(
+          child: Container(),
+        ),
+        data == widget.movielist || data == totaldata
+            ? SliverToBoxAdapter(
+          child: SizedBox(
+            height: 200,
+            child: Padding(
+              padding: EdgeInsets.all(5),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: widget.upcomingmovies.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    padding: EdgeInsets.all(5),
+                    height: 150,
+                    decoration: BoxDecoration(
+                        borderRadius:
+                        BorderRadius.circular(10)),
+                    child: Image.network(
+                      "https://image.tmdb.org/t/p/original${widget.upcomingmovies[index]["poster_path"]}",
+                      fit: BoxFit.contain,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        )
+            : SliverToBoxAdapter(
+          child: Container(),
+        ),
+      ],
+    );
   }
 
   Widget Search() {
