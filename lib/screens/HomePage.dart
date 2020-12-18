@@ -2,8 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:netflix_clone/screens/OnBoardingScreen.dart';
 import 'dart:convert';
 import 'package:netflix_clone/widgets/custom_theme.dart';
+
+import 'MoreDetails.dart';
 
 class HomePage extends StatefulWidget {
   final User user;
@@ -13,10 +16,10 @@ class HomePage extends StatefulWidget {
   QuerySnapshot snapshot;
   HomePage(
       {this.user,
-      this.tvlist,
-      this.movielist,
-      this.upcomingmovies,
-      this.snapshot});
+        this.tvlist,
+        this.movielist,
+        this.upcomingmovies,
+        this.snapshot});
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -135,11 +138,80 @@ class _HomePageState extends State<HomePage> {
     return details;
   }
 
+  checkingmylistformovie() async {
+    setState(() {
+      isloading = true;
+      widget.snapshot.docs[0]
+          .data()["mylist"]
+          .removeWhere((item) => item["type"] == "tv");
+    });
+    var details = await gettingmoviedetails(data[0]["id"]);
+    if (widget.snapshot.docs[0].data()["mylist"].length != 0) {
+      for (int i = 0;
+      i < widget.snapshot.docs[0].data()["mylist"].length;
+      i++) {
+        print(widget.snapshot.docs[0].data()["mylist"][i]["original_title"]);
+        print(details["original_title"]);
+        if (widget.snapshot.docs[0]
+            .data()["mylist"][i]["original_title"]==
+            details["original_title"]) {
+          setState(() {
+            added = true;
+            isloading = false;
+          });
+          break;
+        } else {
+          setState(() {
+            added = false;
+            isloading = false;
+          });
+        }
+      }
+    }else{
+      setState(() {
+        added = false;
+        isloading =false;
+      });
+    }
+  }
+
+  checkingmylistfortv() async {
+    setState(() {
+      isloading = true;
+      widget.snapshot.docs[0]
+          .data()["mylist"]
+          .removeWhere((item) => item["type"] == "movie");
+    });
+    var details = data[0]["type"] == "movie"
+        ? await gettingmoviedetails(data[0]["id"])
+        : await gettingtvdetails(data[0]["id"]);
+    if (widget.snapshot.docs[0].data()["mylist"].length != 0) {
+      for (int i = 0;
+      i < widget.snapshot.docs[0].data()["mylist"].length;
+      i++) {
+        print(widget.snapshot.docs[0].data()["mylist"][i]["title"]);
+        print(details["original_title"]);
+        if (widget.snapshot.docs[0].data()["mylist"][i]["id"] ==
+            details["id"]) {
+          setState(() {
+            added = true;
+            isloading = false;
+          });
+          break;
+        } else {
+          setState(() {
+            added = false;
+            isloading = false;
+          });
+        }
+      }
+    }
+  }
 
   void onTap(int pageValue) {
     setState(() {
       selectedIndex = pageValue;
-
+      data = totaldata;
       pageController.jumpToPage(pageValue);
     });
   }
@@ -242,7 +314,10 @@ class _HomePageState extends State<HomePage> {
                         scaffoldKey.currentContext,
                         MaterialPageRoute(
                             builder: (context) => MoreDetails(
-
+                              details: details,
+                              movie: movie,
+                              user: widget.user,
+                              snapshot: widget.snapshot,
                             )));
                   },
                   child: Container(
@@ -340,6 +415,9 @@ class _HomePageState extends State<HomePage> {
                     mylist = false;
                     isloading = false;
                   });
+                  data[0]['type'] == "movie"
+                      ? checkingmylistformovie()
+                      : checkingmylistfortv();
                 },
                 child: Text(
                   "TV Shows",
@@ -361,7 +439,9 @@ class _HomePageState extends State<HomePage> {
                     mylist = false;
                     isloading = false;
                   });
-
+                  data[0]['type'] == "movie"
+                      ? checkingmylistformovie()
+                      : checkingmylistfortv();
                 },
                 child: Text(
                   "Movies",
@@ -420,7 +500,10 @@ class _HomePageState extends State<HomePage> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => MoreDetails(
-
+                        details: details,
+                        movie: movie,
+                        user: widget.user,
+                        snapshot: widget.snapshot,
                       )));
             },
             child: Container(
@@ -550,7 +633,10 @@ class _HomePageState extends State<HomePage> {
                       scaffoldKey.currentContext,
                       MaterialPageRoute(
                           builder: (context) => MoreDetails(
-                              )));
+                              details: details,
+                              movie: movie,
+                              user: widget.user,
+                              snapshot: widget.snapshot)));
                 },
                 child: Column(
                   children: [
@@ -613,7 +699,10 @@ class _HomePageState extends State<HomePage> {
                           scaffoldKey.currentContext,
                           MaterialPageRoute(
                               builder: (context) => MoreDetails(
-                                 )));
+                                  details: details,
+                                  movie: movie,
+                                  user: widget.user,
+                                  snapshot: widget.snapshot)));
                     },
                     child: Container(
                       padding: EdgeInsets.all(5),
@@ -675,7 +764,10 @@ class _HomePageState extends State<HomePage> {
                           scaffoldKey.currentContext,
                           MaterialPageRoute(
                               builder: (context) => MoreDetails(
-                                  )));
+                                  details: details,
+                                  movie: movie,
+                                  user: widget.user,
+                                  snapshot: widget.snapshot)));
                     },
                     child: Container(
                       padding: EdgeInsets.all(5),
@@ -738,7 +830,10 @@ class _HomePageState extends State<HomePage> {
                           scaffoldKey.currentContext,
                           MaterialPageRoute(
                               builder: (context) => MoreDetails(
-                                  )));
+                                  details: details,
+                                  movie: movie,
+                                  user: widget.user,
+                                  snapshot: widget.snapshot)));
                     },
                     child: Container(
                       padding: EdgeInsets.all(5),
@@ -802,7 +897,10 @@ class _HomePageState extends State<HomePage> {
                           scaffoldKey.currentContext,
                           MaterialPageRoute(
                               builder: (context) => MoreDetails(
-                                  )));
+                                  details: details,
+                                  movie: movie,
+                                  user: widget.user,
+                                  snapshot: widget.snapshot)));
                     },
                     child: Container(
                       padding: EdgeInsets.all(5),
@@ -932,7 +1030,10 @@ class _HomePageState extends State<HomePage> {
                           scaffoldKey.currentContext,
                           MaterialPageRoute(
                               builder: (context) => MoreDetails(
-                                  )));
+                                  details: details,
+                                  movie: movie,
+                                  user: widget.user,
+                                  snapshot: widget.snapshot)));
                     },
                     child: Container(
                       padding: EdgeInsets.all(5),
@@ -959,7 +1060,110 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget Search() {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(onPressed: ()async {
+          setState(() {
+            isloading = true;
+            print(totaldata);
+            if(search.text.isNotEmpty){
+              searched =true;
+              searchdata = [];
+              for(int i=0; i< totaldata.length; i++){
+                if(totaldata[i]["type"] =="movie" ? totaldata[i]['original_title'].toLowerCase().contains(search.text.toLowerCase().trim()) : totaldata[i]['original_name'].toLowerCase().contains(search.text.toLowerCase().trim())){
+                  searchdata.add(totaldata[i]);
+                }
+              }
+            }else{
+              searched = false;
+              searchdata = totaldata;
+            }
+            isloading = false;
+          });
+        },icon: Icon(Icons.search, color:Colors.grey, size: 30,)),
+        title: TextField(
+          controller: search,
+          decoration: InputDecoration(
+              hintText: "Search for a movie or a show.",
+              hintStyle: TextStyle(color:Colors.white),
+              suffixIcon: IconButton(
+                onPressed: () {
+
+                },
+                icon: Icon(Icons.mic, color: Colors.grey),
+              )
+          ),
+        ),
+      ),
+      body: isloading? Container(child: Center(child: CircularProgressIndicator(),),) : searchdata.isEmpty? Container(child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text("No Results.", style: TextStyle(color: Colors.white, fontSize: 18 ),),
+      ),) : Column(
+        children: [
+          Expanded(
+            flex: 1,
+            child: Container(
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.all(8.0),
+              child: Text(searched? "Top Results": "Popular Searches", style: TextStyle(color:Colors.white, fontSize: 30, fontWeight:FontWeight.bold),),
+            ),
+          ),
+          Expanded(
+            flex: 10,
+            child: ListView.builder(
+                shrinkWrap: true,itemCount: searchdata.length,itemBuilder: (context, index){
+              return GestureDetector(
+                onTap: () async {
+                  setState(() {
+                    isloading = true;
+                  });
+                  var details = searchdata[index-1]["type"] == "movie"
+                      ? await gettingmoviedetails(searchdata[index]["id"])
+                      : await gettingtvdetails(searchdata[index]["id"]);
+
+                  print(details);
+                  Navigator.push(
+                      scaffoldKey.currentContext,
+                      MaterialPageRoute(
+                          builder: (context) => MoreDetails(
+                            details: details,
+                            movie: movie,
+                            user: widget.user,
+                            snapshot: widget.snapshot,
+                          )));
+                  setState(() {
+                    isloading = false;
+                  });
+                },
+                child: Container(
+                  height: 130,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: Container(
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                            child: SizedBox(
+                              child: Image.network("https://image.tmdb.org/t/p/original${searchdata[index]["poster_path"]}",
+                                fit: BoxFit.fitWidth,),
+                            ),
+                          ),
+                        ),
+                        Expanded(flex: 3,child: Container(padding: EdgeInsets.all(5), child: Text(searchdata[index]["type"]=="movie"? searchdata[index]["original_title"]:searchdata[index]["original_name"] ,style:TextStyle(color:Colors.white, fontSize: 20,) ),)),
+                        Expanded(flex: 1,child: Icon(Icons.play_arrow, color:Colors.grey)),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }),
+          )
+          ,
+        ],
+      ),
+    );
   }
 
   Container itemCont(BuildContext context,String name,String desp,String image,List genrelist) {
@@ -1120,7 +1324,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget ComingSoon() {
-    return Container();
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: ListView.builder(itemCount: widget.upcomingmovies.length,itemBuilder: (context, index){
+        return itemCont(context, widget.upcomingmovies[index]["original_title"], widget.upcomingmovies[index]["overview"], "https://image.tmdb.org/t/p/original${widget.upcomingmovies[index]["poster_path"]}", widget.upcomingmovies[index]["genre_ids"]);
+      }),
+    );
   }
 
   Widget Download() {
@@ -1128,14 +1337,26 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget More() {
-    return Container();
+    return Center(
+      child: GestureDetector(
+        onTap: () {
+          auth.signOut();
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => onBoardingScreen()));
+        },
+        child: Container(
+          child: Text("Sign Out"),
+        ),
+      ),
+    );
   }
 
   @override
   void initState() {
     totaldata = List.from(widget.movielist)..addAll(widget.tvlist);
     data = totaldata;
+    searchdata = totaldata;
     data.shuffle();
+    checkingmylistformovie();
 
     // print(widget.user.email);
     super.initState();
