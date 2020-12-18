@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/SplashScreen.dart';
+import 'package:netflix_clone/screens/Splash Screen.dart';
 import 'widgets/custom_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 

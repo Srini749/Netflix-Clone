@@ -86,6 +86,33 @@ class _onBoardingScreenState extends State<onBoardingScreen> {
     });
   }
 
+  issignedinusingemail()async {
+    setState(() {
+      isloading = true;
+    });
+    User firebaseUser = auth.currentUser;
+    await fetchingalldata();
+    try{
+      QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('users').where("email", isEqualTo: firebaseUser.email,).get();
+      if(firebaseUser != null){
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    HomePage(user: firebaseUser, movielist: movieslist["results"],tvlist: tvlist["results"], upcomingmovies: upcomingmovies["results"], snapshot: snapshot)));
+      }else{
+        setState(() {
+          isloading = false;
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => onBoardingScreen()));
+        });
+      }
+    }catch(e){
+      setState(() {
+        isloading = false;
+      });
+    }
+
+  }
 
 
   @override

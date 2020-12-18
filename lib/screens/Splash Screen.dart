@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/screens/OnBoardingScreen.dart';
-import 'package:flutter_app/screens/SignIn.dart';
+import 'package:netflix_clone/screens/OnBoardingScreen.dart';
+import 'package:netflix_clone/screens/SignIn.dart';
 
 class SplashScreen extends StatefulWidget {
   final bool status;
