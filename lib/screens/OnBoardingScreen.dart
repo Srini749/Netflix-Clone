@@ -14,6 +14,10 @@ class onBoardingScreen extends StatefulWidget {
 
 class _onBoardingScreenState extends State<onBoardingScreen> {
   bool isloading=false;
+  int _currentpageindex = 0;
+  var movieslist;
+  var tvlist;
+  var upcomingmovies;
 
   Future getData(String address) async{
     http.Response response = await http.get(address);
@@ -69,6 +73,21 @@ class _onBoardingScreenState extends State<onBoardingScreen> {
         heading: "Unlimited entertainment, one low price"),
   ];
 
+
+  fetchingalldata()async{
+    var movies1 = await movies();
+    var tv1 =await tv();
+    var upcomingmovies1 = await getData("https://api.themoviedb.org/3/movie/upcoming?api_key=1700c4a8b5698384abc2e8d34ff5b413&language=en-US&page=1");
+
+    setState(() {
+      movieslist = movies1;
+      tvlist = tv1;
+      upcomingmovies = upcomingmovies1;
+    });
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,7 +106,158 @@ class _onBoardingScreenState extends State<onBoardingScreen> {
              ],
            ),
          ):Stack(
-           children: [],
+           children: [
+             PageView.builder(
+                 itemCount: onBoardingData.length,
+                 onPageChanged: (index){
+                   setState((){
+                     _currentpageindex = index;
+                   });
+                 },
+                 itemBuilder: (context, index) {
+                   return Stack(
+                     fit: StackFit.passthrough,
+                     children: [
+                       index == 3
+                           ? Container(
+                         height: double.infinity,
+                         child: Image.asset(
+                           onBoardingData[index].image,
+                           fit: BoxFit.cover,
+                         ),
+                       )
+                           : Container(
+                         alignment:Alignment.topCenter,
+                         child: Column(
+                           children: [
+                             SizedBox(height: 170,),
+                             Image.asset(onBoardingData[index].image),
+                           ],
+                         ),
+                       ),
+                       index == 3
+                           ? Container(
+                         decoration: BoxDecoration(
+                             gradient: LinearGradient(
+                               colors: [
+                                 Colors.black.withOpacity(0.5),
+                                 Colors.black.withOpacity(0.1),
+                                 Colors.black.withOpacity(0.9),
+                               ],
+                               begin: Alignment(0.9, 0.0),
+                               end: Alignment(0.9, 0.4),
+                             )),
+                       )
+                           : Container(),
+                       Container(
+                         margin: EdgeInsets.only(top: 400, left: 40, right: 40),
+                         child: Column(
+                           children: [
+                             Text(
+                               onBoardingData[index].heading,
+                               style: TextStyle(
+                                 fontSize: 22,
+                               ),
+                               textAlign: TextAlign.center,
+                             ),
+                             SizedBox(
+                               height: 10,
+                             ),
+                             Text(
+                               onBoardingData[index].description,
+                               style: TextStyle(
+                                 fontSize: 16,
+                               ),
+                               textAlign: TextAlign.center,
+                             )
+                           ],
+                         ),
+                       )
+                     ],
+                   );
+                 }),
+             Container(child: Column(
+               mainAxisAlignment: MainAxisAlignment.end,
+               children: [
+                 Container(
+                   child: Row(
+                     mainAxisAlignment: MainAxisAlignment.center,
+                     children: onBoardingData.map((data){
+                       int index = onBoardingData.indexOf(data);
+                       return Container(
+                         height: 10,
+                         width: 10,
+                         margin: EdgeInsets.all(5),
+                         decoration: BoxDecoration(
+                             color: index==_currentpageindex? Colors.red: Colors.grey,
+                             borderRadius: BorderRadius.all(Radius.circular(20))
+                         ),
+                       );
+                     }).toList(),
+                   ),
+                 ),
+                 SizedBox(height: 20,),
+                 GestureDetector(
+                   onTap: (){
+                     Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpPage()));
+                   },
+                   child: Container(
+                     margin: EdgeInsets.only(bottom: 10, left: 15, right: 15),
+                     padding: EdgeInsets.symmetric(vertical: 15,),
+                     width: double.infinity,
+                     alignment: Alignment.center,
+                     decoration: BoxDecoration(
+                       borderRadius: BorderRadius.all(Radius.circular(5)),
+                       color: Colors.red,
+                     ),
+                     child: Text("GET STARTED", style: TextStyle(fontWeight: FontWeight.bold),),
+                   ),
+                 ),
+                 SizedBox(height: 20,),
+               ],
+             )),
+             Container(
+               margin: EdgeInsets.only(top: 15),
+               child: Row(
+                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                 children: [
+                   Container(
+                     height: 70,
+                     width: 70,
+                     child: Image.asset("assets/n_symbol.png"),
+                   ),
+                   Row(
+                     children: [
+                       Text("PRIVACY"),
+                       SizedBox(
+                         width: 10,
+                       ),
+                       Text("HELP"),
+                       SizedBox(
+                         width: 10,
+                       ),
+                       GestureDetector(
+                           onTap: ()async{
+                             setState(() {
+                               isloading=true;
+                             });
+                             await fetchingalldata();
+                             setState(() {
+                               isloading=false;
+                             });
+                             Navigator.push(context, MaterialPageRoute(builder: (context) => SignInPage( movielist: movieslist["results"],tvlist: tvlist["results"],upcomingmovies: upcomingmovies["results"], )));
+                           },
+                           child: Text("SIGN IN")),
+                       SizedBox(
+                         width: 10,
+                       ),
+                     ],
+                   )
+                 ],
+               ),
+             ),
+
+           ],
          ),
     );
   }
