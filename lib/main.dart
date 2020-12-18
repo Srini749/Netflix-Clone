@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/SplashScreen.dart';
 import 'widgets/custom_theme.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_cor/firebase_core.dart';
 
 
 void main() async {
