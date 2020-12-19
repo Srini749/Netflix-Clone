@@ -1,16 +1,34 @@
-# netflix_clone
+# Netflix Clone
 
-A new Flutter application.
+Signup and Signin pages
 
-## Getting Started
+![alt-text](https://media.giphy.com/media/jcN5ipTYSjuoGo8dHx/giphy.gif)
 
-This project is a starting point for a Flutter application.
+After signing in, the user is navigated to the main screen with a bottom navigator bar(home, search, coming soon, download and more)
 
-A few resources to get you started if this is your first Flutter project:
+The home page consist of an app bar with options like tv shows , movies and mylist in order to show data accordingly. Mylist data is stored in cloud firebase for each user.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+![alt-text](https://media.giphy.com/media/uZIVBD3B5nHvPzwTny/giphy.gif)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Search page:
+
+![alt-text](https://media.giphy.com/media/MK57hgpQowZHgtzWpT/giphy.gif)
+
+On clicking a particular movie/tc show, you are navigated to a details page of the particular movie/tv show.
+
+![alt-text](https://media.giphy.com/media/1X38Cdz7lV1TMlec8I/giphy.gif)
+
+on clicking play button on the details page of a movie/tv show, you're navigated to the video screen which would play a trailer of the particular movie/tv show. Youtube Player Plugin has been used to play youtube trailer with the help of a videoid.
+
+![alt-text](https://media.giphy.com/media/xeOrrmNlWT3HuU1UVY/giphy.gif)
+
+Coming soon and Downloads Page
+
+![alt-text](https://media.giphy.com/media/JdjlkcQfSdqmVGJ06c/giphy.gif)
+
+Finally the more screen..
+
+
+
+
+
