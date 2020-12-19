@@ -28,6 +28,7 @@ Coming soon and Downloads Page
 
 Finally the more screen..
 
+![Screenshot_20201219-120941](https://user-images.githubusercontent.com/60594770/102683458-1d588480-41f7-11eb-8dc7-7e021c474b86.jpg)
 
 
 
