@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:netflix_clone/widgets/Video.dart';
 
 
 class MoreDetails extends StatefulWidget {
@@ -277,7 +278,15 @@ class _MoreDetailsState extends State<MoreDetails> {
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(5)),
                           child: FlatButton.icon(
-                              onPressed: null,
+                              onPressed: ()async {
+                                var key =  widget.details["type"] == "movie" ? await getData("https://api.themoviedb.org/3/movie/${widget.details["id"]}/videos?api_key=1700c4a8b5698384abc2e8d34ff5b413&language=en-US") : await getData("https://api.themoviedb.org/3/tv/${widget.details["id"]}/videos?api_key=1700c4a8b5698384abc2e8d34ff5b413&language=en-US");
+                                print(key);
+                                if(!key["results"].isEmpty){
+                                  Navigator.push(scaffoldKey.currentContext, MaterialPageRoute(builder: (context) => video(title: widget.details["type"] == "movie" ? widget.details["original_title"] : widget.details["original_name"],
+                                    videoid: key["results"][0]["key"],)));
+                                }
+
+                              },
                               icon: Icon(
                                 Icons.play_arrow,
                                 color: Colors.black,

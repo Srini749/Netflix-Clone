@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:netflix_clone/screens/SignUp.dart';
 import 'package:netflix_clone/screens/SignIn.dart';
+import 'package:netflix_clone/screens/HomePage.dart';
 
 class onBoardingScreen extends StatefulWidget {
   @override
@@ -114,6 +115,11 @@ class _onBoardingScreenState extends State<onBoardingScreen> {
 
   }
 
+  @override
+  void initState() {
+    issignedinusingemail();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

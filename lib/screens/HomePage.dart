@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:netflix_clone/screens/OnBoardingScreen.dart';
+import 'package:netflix_clone/widgets/Video.dart';
 import 'dart:convert';
 import 'package:netflix_clone/widgets/custom_theme.dart';
 
@@ -605,7 +606,12 @@ class _HomePageState extends State<HomePage> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(5)),
                 child: FlatButton.icon(
-                    onPressed: null,
+                    onPressed: ()async {
+                     var key =  data[0]["type"] == "movie" ? await getData("https://api.themoviedb.org/3/movie/${data[0]["id"]}/videos?api_key=1700c4a8b5698384abc2e8d34ff5b413&language=en-US") : await getData("https://api.themoviedb.org/3/tv/${data[0]["id"]}/videos?api_key=1700c4a8b5698384abc2e8d34ff5b413&language=en-US");
+                     print(key);
+                     Navigator.push(scaffoldKey.currentContext, MaterialPageRoute(builder: (context) => video(title: data[0]["type"] == "movie" ? data[0]["original_title"] : data[0]["original_name"],
+                         videoid: key["results"][0]["key"],)));
+                    },
                     icon: Icon(
                       Icons.play_arrow,
                       size: 40,
@@ -1333,7 +1339,58 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget Download() {
-    return Container();
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 50,
+          ),
+          Icon(Icons.download_rounded, size: 150, color: Colors.grey,),
+          Padding(
+            padding: const EdgeInsets.only(
+                top: 40.0, right: 20, left: 20),
+            child: Text(
+              "Movies and TV shows that you download appear here",
+              style: TextStyle(
+                  color: Colors.grey, fontSize: 25),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(
+                vertical: 50, horizontal: 30),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  data = totaldata;
+                  mylist = false;
+                  pageController.jumpToPage(0);
+                });
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius:
+                    BorderRadius.circular(5),
+                    color: Colors.white),
+                padding: EdgeInsets.symmetric(
+                    vertical: 20, horizontal: 10),
+                child: Center(
+                    child: Text(
+                      "FIND SOMETHING TO WATCH",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    )),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   Widget More() {
