@@ -1378,7 +1378,7 @@ class _HomePageState extends State<HomePage> {
                     vertical: 20, horizontal: 10),
                 child: Center(
                     child: Text(
-                      "FIND SOMETHING TO WATCH",
+                      "FIND SOMETHING TO DOWNLOAD",
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 25,
@@ -1394,14 +1394,147 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget More() {
-    return Center(
-      child: GestureDetector(
-        onTap: () {
-          auth.signOut();
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => onBoardingScreen()));
-        },
-        child: Container(
-          child: Text("Sign Out"),
+    return SafeArea(
+      child: Container(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height:30),
+              Container(
+                height: 200,
+                child: Image.asset("assets/profilepic.png", fit: BoxFit.contain,),
+              ),
+              Container(
+                padding: EdgeInsets.all(40),
+                child: Center(child: Text(
+                  "Hi ${widget.snapshot.docs[0].data()["username"]}!!", style: TextStyle(color: Colors.grey, fontSize: 30, fontWeight: FontWeight.bold),)),
+              ),
+              Container(
+                  width: double.infinity,
+                  height: 40.0,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                  ),
+                  margin: EdgeInsets.all(5.0),
+                  child: Row(children: <Widget>[
+                    Icon(Icons.notifications,color: Colors.grey,size:40.0),
+                    SizedBox(width: 10.0,),
+                    Text('App Notifications',
+                      style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 20
+                      ),),
+                  ],)
+
+              ),
+              Divider(color:Colors.black54),
+              GestureDetector(
+                onTap: (){
+                  setState(() {
+                    mylist = true;
+                    pageController.jumpToPage(0);
+                  });
+                },
+                child: Container(
+                    width: double.infinity,
+                    height: 40.0,
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                    ),
+                    margin: EdgeInsets.symmetric(horizontal:5.0),
+                    child: Row(children: <Widget>[
+                      Icon(Icons.done,color: Colors.grey,size:40.0),
+                      SizedBox(width: 10.0,),
+                      Text('My List',
+                        style: TextStyle(
+                            color: Colors.grey,
+                          fontSize: 20
+                        ),),
+                    ],)
+
+                ),
+              ),
+              Divider(color:Colors.black54),
+              Container(
+                  width: double.infinity,
+                  height: 30.0,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                  ),
+                  margin: EdgeInsets.symmetric(horizontal:5.0),
+                  child: Row(children: <Widget>[
+                    SizedBox(width: 10.0,),
+                    Text('App Settings',
+                      style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.grey
+                      ),),
+                  ],)
+
+              ),
+              Divider(color:Colors.black),
+              Container(
+                  width: double.infinity,
+                  height: 30.0,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                  ),
+                  margin: EdgeInsets.symmetric(horizontal:5.0),
+                  child: Row(children: <Widget>[
+                    SizedBox(width: 10.0,),
+                    Text('Account',
+                      style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.grey
+                      ),),
+                  ],)
+
+              ),
+              Divider(color:Colors.black54),
+              Container(
+                  width: double.infinity,
+                  height: 30.0,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                  ),
+                  margin: EdgeInsets.symmetric(horizontal:5.0),
+                  child: Row(children: <Widget>[
+                    SizedBox(width: 10.0,),
+                    Text('Help',
+                      style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.grey
+                      ),),
+                  ],)
+
+              ),
+              Divider(color:Colors.black54),
+              GestureDetector(
+                onTap: (){
+                  auth.signOut();
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => onBoardingScreen()));
+                },
+                child: Container(
+                    width: double.infinity,
+                    height: 30.0,
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                    ),
+                    margin: EdgeInsets.symmetric(horizontal:5.0),
+                    child: Row(children: <Widget>[
+                      SizedBox(width: 10.0,),
+                      Text('Sign Out',
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.grey
+                        ),),
+                    ],)
+
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
